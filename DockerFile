@@ -10,7 +10,13 @@ ENV SSH_PASSWD "root:Docker!"
 ENV CF_PASSWD "cfuser:ColdFusion123"
 
 RUN apt-get update \
-	&& apt-get install -y apt-utils openssh-server \
+	&& apt-get install -y apt-utils \
+          unzip \
+          openssh-server \
+          vim \
+          curl \
+          wget \
+          tcptraceroute \
 	&& echo "$SSH_PASSWD" | chpasswd 
 
 COPY sshd_config /etc/ssh/
@@ -26,10 +32,9 @@ RUN chmod u+x /usr/local/bin/init_container.sh
 
 RUN mkdir -p /home/LogFiles \
      && echo "$SSH_PASSWD" | chpasswd \
-#     && echo "$CF_PASSWD" | chpasswd \
      && echo "cd /home" >> /etc/bash.bashrc
 #
-#   Dont expose any port
+#   Dont expose any other port
 #
 ENV SSH_PORT 2222
 EXPOSE 2222
