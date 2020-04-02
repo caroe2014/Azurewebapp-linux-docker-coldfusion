@@ -1,0 +1,37 @@
+
+FROM eaps-docker-coldfusion.bintray.io/cf/coldfusion:latest
+ 
+USER root
+ENV acceptEULA YES
+ENV password ColdFusion123
+ENV enableSecureProfile true
+# ssh
+ENV SSH_PASSWD "root:Docker!"
+ENV CF_PASSWD "cfuser:ColdFusion123"
+
+RUN apt-get update \
+	&& apt-get install -y apt-utils openssh-server \
+	&& echo "$SSH_PASSWD" | chpasswd 
+
+COPY sshd_config /etc/ssh/
+
+#
+#   Copy the application
+#
+#COPY index.cfm /opt/coldfusion/cfusion/wwwroot/CFIDE/
+#COPY coldfusion.env /opt/coldfusion/cfusion/wwwroot/CFIDE/
+
+COPY init_container.sh /usr/local/bin/
+RUN chmod u+x /usr/local/bin/init_container.sh
+
+RUN mkdir -p /home/LogFiles \
+     && echo "$SSH_PASSWD" | chpasswd \
+#     && echo "$CF_PASSWD" | chpasswd \
+     && echo "cd /home" >> /etc/bash.bashrc
+#
+#   Dont expose any port
+#
+ENV SSH_PORT 2222
+EXPOSE 2222
+
+ENTRYPOINT ["/usr/local/bin/init_container.sh"]
