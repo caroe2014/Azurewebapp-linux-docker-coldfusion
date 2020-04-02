@@ -28,9 +28,14 @@ COPY sshd_config /etc/ssh/
 #COPY coldfusion.env /opt/coldfusion/cfusion/wwwroot/CFIDE/
 
 COPY init_container.sh /usr/local/bin/
-RUN chmod u+x /usr/local/bin/init_container.sh
+RUN chmod u+x /usr/local/bin/init_container.sh \
+     && chmod 777 /opt  \
+     && echo "$SSH_PASSWD" | chpasswd \
+     && echo "cd /home" >> /etc/bash.bashrc
 
 RUN mkdir -p /home/LogFiles \
+     && ln -s /home/LogFiles /opt/coldfusion/cfusion/logs \
+     && chmod 777 /home/LogFiles \
      && echo "$SSH_PASSWD" | chpasswd \
      && echo "cd /home" >> /etc/bash.bashrc
 #
